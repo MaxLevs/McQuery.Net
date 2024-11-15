@@ -1,47 +1,46 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+namespace McQuery.Net.Data;
 
-namespace MCQueryLib.Data
+/// <summary>
+/// Represents Session Identifier.
+/// </summary>
+[PublicAPI]
+public class SessionId
 {
-	/// <summary>
-	/// This class represents SessionId filed into packages.
-	/// It provides api for create random SessionId or parse it from byte[]
-	/// </summary>
-	public class SessionId
-	{
-		private readonly byte[] _sessionId;
+    private byte[] Data { get; }
 
-		public SessionId(byte[] sessionId)
-		{
-			_sessionId = sessionId;
-		}
+    /// <summary>
+    /// .ctor.
+    /// </summary>
+    /// <param name="data">Bytes that represents session identifier.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Number of bytes is incorrect.
+    /// </exception>
+    public SessionId(byte[] data)
+    {
+        if (data.Length != 4)
+            throw new ArgumentOutOfRangeException(nameof(data), data, "Session identifier must have 4 bytes");
 
-		public string GetString()
-		{
-			return BitConverter.ToString(_sessionId);
-		}
+        Data = data;
+    }
 
-		public byte[] GetBytes()
-		{
-			var sessionIdSnapshot = new byte[4];
-			Buffer.BlockCopy(_sessionId, 0, sessionIdSnapshot, 0, 4);
-			return sessionIdSnapshot;
-		}
+    public static implicit operator string(SessionId sessionId)
+    {
+        return BitConverter.ToString(sessionId.Data);
+    }
 
-		public void WriteTo(List<byte> list)
-		{
-			list.AddRange(_sessionId);
-		}
+    public static implicit operator byte[](SessionId sessionId)
+    {
+        return [..sessionId.Data];
+    }
 
-		public override bool Equals(object? obj)
-		{
-			return obj is SessionId anotherSessionId && _sessionId.SequenceEqual(anotherSessionId._sessionId);
-		}
+    public override bool Equals(object? obj)
+    {
+        return obj is SessionId anotherSessionId
+               && Data.SequenceEqual(anotherSessionId.Data);
+    }
 
-		public override int GetHashCode()
-		{
-			return BitConverter.ToInt32(_sessionId, 0);
-		}
-	}
+    public override int GetHashCode()
+    {
+        return BitConverter.ToInt32(Data, 0);
+    }
 }

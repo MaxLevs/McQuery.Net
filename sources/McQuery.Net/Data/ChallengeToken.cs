@@ -1,53 +1,34 @@
-using System;
-using System.Collections.Generic;
+using McQuery.Net.Abstract;
+using McQuery.Net.Exceptions;
 
-namespace MCQueryLib.Data
+namespace McQuery.Net.Data;
+
+internal record ChallengeToken : IExpirable
 {
-	public class ChallengeToken
-	{
-		private byte[]? _challengeToken;
+    private const int AlivePeriod = 29;
+    private readonly DateTime _expiresAt = DateTime.UtcNow.AddSeconds(AlivePeriod);
 
-		private const int alivePeriod = 30000; // Milliseconds before revoking
+    /// <summary>
+    /// .ctor.
+    /// </summary>
+    /// <param name="data">Bytes that represents challenge token.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Number of bytes is incorrect.
+    /// </exception>
+    public ChallengeToken(byte[] data)
+    {
+        if (data.Length != 4)
+            throw new ArgumentOutOfRangeException(nameof(data), data, "Challenge token must have 4 bytes");
 
-		private DateTime revokeDateTime;
-		public bool IsFine => _challengeToken != null && DateTime.Now < revokeDateTime;
+        Data = data;
+    }
 
-		public ChallengeToken()
-		{
-			_challengeToken = null;
-		}
+    private byte[] Data { get; }
+    public bool IsExpired => DateTime.UtcNow >= _expiresAt;
 
-		public ChallengeToken(byte[] challengeToken)
-		{
-			UpdateToken(challengeToken);
-		}
-
-		public void UpdateToken(byte[] challengeToken)
-		{
-			_challengeToken = (byte[])challengeToken.Clone();
-			revokeDateTime = DateTime.Now.AddMilliseconds(alivePeriod);
-		}
-
-		public string GetString()
-		{
-			ArgumentNullException.ThrowIfNull(_challengeToken);
-			return BitConverter.ToString(_challengeToken);
-		}
-
-		public byte[] GetBytes()
-		{
-			ArgumentNullException.ThrowIfNull(_challengeToken);
-
-			byte[] challengeTokenSnapshot = new byte[4];
-			Buffer.BlockCopy(_challengeToken, 0, challengeTokenSnapshot, 0, 4);
-			return challengeTokenSnapshot;
-		}
-
-		public void WriteTo(List<byte> list)
-		{
-			ArgumentNullException.ThrowIfNull(_challengeToken);
-
-			list.AddRange(_challengeToken);
-		}
-	}
+    public static implicit operator byte[](ChallengeToken token)
+    {
+        AlreadyExpiredException.ThrowIfExpired(token);
+        return [..token.Data];
+    }
 }
