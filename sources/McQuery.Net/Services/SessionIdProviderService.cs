@@ -1,68 +1,61 @@
-﻿using MCQueryLib.Data;
-using MCQueryLib.Utills;
-using System;
-using System.Collections.Generic;
+﻿using McQuery.Net.Data;
+using McQuery.Net.Utils;
 
-namespace MCQueryLib.Services
+namespace McQuery.Net.Services;
+
+public class SessionIdProviderService
 {
-	public class SessionIdProviderService
-	{
-		public SessionIdProviderService(Random random)
-		{
-			this.random = random;
-			ReservedIds = new();
-			IdCounter = new();
-		}
+    public SessionIdProviderService(Random random)
+    {
+        this.random = random;
+        reservedIds = [];
+        idCounter = new ByteCounter();
+    }
 
 
-		private readonly List<SessionId> ReservedIds;
+    private readonly List<SessionId> reservedIds;
 
-		Random random;
-		public SessionId GenerateRandomId()
-		{
-			byte[] sessionIdData = new byte[4];
-			SessionId sessionId;
+    private readonly Random random;
 
-			do
-			{
-				random.NextBytes(sessionIdData);
-				for (int i = 0; i < sessionIdData.Length; ++i)
-				{
-					sessionIdData[i] &= 0x0F;
-				}
+    public SessionId GenerateRandomId()
+    {
+        byte[] sessionIdData = new byte[4];
+        SessionId sessionId;
 
-				sessionId = new(sessionIdData);
-			}
-			while (IsIdReserved(sessionId));
+        do
+        {
+            random.NextBytes(sessionIdData);
+            for (int i = 0; i < sessionIdData.Length; ++i) sessionIdData[i] &= 0x0F;
 
-			ReserveId(sessionId);
-			return sessionId;
-		}
+            sessionId = new SessionId(sessionIdData);
+        } while (IsIdReserved(sessionId));
+
+        ReserveId(sessionId);
+
+        return sessionId;
+    }
 
 
-		private readonly ByteCounter IdCounter = new ByteCounter();
+    private readonly ByteCounter idCounter;
 
-		public SessionId GetUinqueId()
-		{
-			byte[] sessionIdData = new byte[4];
-			if (!IdCounter.GetNext(sessionIdData))
-			{
-				// find released sessionIds
-			}
+    public SessionId GetUniqueId()
+    {
+        byte[] sessionIdData = new byte[4];
+        if (!idCounter.GetNext(sessionIdData))
+        {
+            // find released sessionIds
+        }
 
-			SessionId sessionId = new(sessionIdData);
-			ReserveId(sessionId);
-			return sessionId;
-		}
+        SessionId sessionId = new(sessionIdData);
+        ReserveId(sessionId);
 
-		private void ReserveId(SessionId sessionId)
-		{
-			ReservedIds.Add(sessionId);
-		}
+        return sessionId;
+    }
 
-		public bool IsIdReserved(SessionId sessionId)
-		{
-			return ReservedIds.IndexOf(sessionId) != -1;
-		}
-	}
+    private void ReserveId(SessionId sessionId)
+    {
+        reservedIds.Add(sessionId);
+    }
+
+    public bool IsIdReserved(SessionId sessionId) => reservedIds.IndexOf(sessionId) != -1;
 }
