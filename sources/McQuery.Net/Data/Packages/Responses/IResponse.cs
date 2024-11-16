@@ -1,10 +1,8 @@
-﻿using System;
+﻿namespace McQuery.Net.Data.Packages.Responses;
 
-namespace MCQueryLib.Data.Packages.Responses
+public interface IResponse
 {
-	public interface IResponse
-	{
-		public Guid ServerUUID { get; }
-		public byte[] RawData { get; }
-	}
+    public Guid ServerUUID { get; }
+
+    public byte[] RawData { get; }
 }
