@@ -20,4 +20,12 @@ public record BasicStatus(
     int MaxPlayers,
     int HostPort,
     string HostIp
+) : StatusBase(
+    Motd,
+    GameType,
+    Map,
+    NumPlayers,
+    MaxPlayers,
+    HostPort,
+    HostIp
 );

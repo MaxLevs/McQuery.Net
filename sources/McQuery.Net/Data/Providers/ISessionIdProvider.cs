@@ -1,6 +1,4 @@
-using McQuery.Net.Data;
-
-namespace McQuery.Net.Providers;
+namespace McQuery.Net.Data.Providers;
 
 internal interface ISessionIdProvider
 {

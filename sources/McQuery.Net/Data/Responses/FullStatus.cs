@@ -28,4 +28,12 @@ public record FullStatus(
     string[] PlayerList,
     int HostPort,
     string HostIp
+) : StatusBase(
+    Motd,
+    GameType,
+    Map,
+    NumPlayers,
+    MaxPlayers,
+    HostPort,
+    HostIp
 );

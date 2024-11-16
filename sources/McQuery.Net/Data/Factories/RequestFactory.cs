@@ -1,6 +1,4 @@
-using McQuery.Net.Data;
-
-namespace McQuery.Net.Factories;
+namespace McQuery.Net.Data.Factories;
 
 internal class RequestFactory : IRequestFactory
 {
