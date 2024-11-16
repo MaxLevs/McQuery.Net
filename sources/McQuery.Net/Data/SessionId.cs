@@ -3,8 +3,7 @@ namespace McQuery.Net.Data;
 /// <summary>
 /// Represents Session Identifier.
 /// </summary>
-[PublicAPI]
-public class SessionId
+internal class SessionId
 {
     private byte[] Data { get; }
 
@@ -23,24 +22,19 @@ public class SessionId
         Data = data;
     }
 
-    public static implicit operator string(SessionId sessionId)
-    {
-        return BitConverter.ToString(sessionId.Data);
-    }
+    public static implicit operator string(SessionId sessionId) =>
+        BitConverter.ToString(sessionId.Data);
 
-    public static implicit operator byte[](SessionId sessionId)
-    {
-        return [..sessionId.Data];
-    }
+    public static implicit operator byte[](SessionId sessionId) =>
+        [..sessionId.Data];
 
-    public override bool Equals(object? obj)
-    {
-        return obj is SessionId anotherSessionId
-               && Data.SequenceEqual(anotherSessionId.Data);
-    }
+    public static implicit operator ReadOnlySpan<byte>(SessionId sessionId) =>
+        (byte[])sessionId;
 
-    public override int GetHashCode()
-    {
-        return BitConverter.ToInt32(Data, 0);
-    }
+    public override bool Equals(object? obj) =>
+        obj is SessionId anotherSessionId
+        && Data.SequenceEqual(anotherSessionId.Data);
+
+    public override int GetHashCode() =>
+        BitConverter.ToInt32(Data, 0);
 }

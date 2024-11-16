@@ -6,7 +6,7 @@ namespace McQuery.Net.Data;
 internal record ChallengeToken : IExpirable
 {
     private const int AlivePeriod = 29;
-    private readonly DateTime _expiresAt = DateTime.UtcNow.AddSeconds(AlivePeriod);
+    private readonly DateTime expiresAt = DateTime.UtcNow.AddSeconds(AlivePeriod);
 
     /// <summary>
     /// .ctor.
@@ -24,11 +24,14 @@ internal record ChallengeToken : IExpirable
     }
 
     private byte[] Data { get; }
-    public bool IsExpired => DateTime.UtcNow >= _expiresAt;
+    public bool IsExpired => DateTime.UtcNow >= expiresAt;
 
     public static implicit operator byte[](ChallengeToken token)
     {
         AlreadyExpiredException.ThrowIfExpired(token);
         return [..token.Data];
     }
+
+    public static implicit operator ReadOnlySpan<byte>(ChallengeToken token) =>
+        (byte[])token;
 }

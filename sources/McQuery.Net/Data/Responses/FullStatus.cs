@@ -1,10 +1,9 @@
 namespace McQuery.Net.Data.Responses;
 
 /// <summary>
-/// Represents data which is received from FullState request.
+/// Represents data which is received from FullStatus request.
 /// </summary>
 /// <seealso href="https://wiki.vg/Query#Response_3"/>
-/// <param name="SessionId"><see cref="SessionId"/>.</param>
 /// <param name="Motd">Message of the day.</param>
 /// <param name="GameType">Type of the game.</param>
 /// <param name="GameId">Identifier of a game. Constant value: MINECRAFT.</param>
@@ -17,8 +16,7 @@ namespace McQuery.Net.Data.Responses;
 /// <param name="HostPort">Port to connect.</param>
 /// <param name="HostIp">Ip to connect.</param>
 [PublicAPI]
-public record FullState(
-    SessionId SessionId,
+public record FullStatus(
     string Motd,
     string GameType,
     string GameId,

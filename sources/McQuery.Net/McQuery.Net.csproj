@@ -7,5 +7,9 @@
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations"/>
     </ItemGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="McQuery.Net.Samples" />
+    </ItemGroup>
 
 </Project>
