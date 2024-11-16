@@ -19,7 +19,7 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
 
     private static readonly IResponseParser<ChallengeToken> HandshakeResponseParser = new HandshakeResponseParser();
     private static readonly IResponseParser<BasicStatus> BasicStatusResponseParser = new BasicStatusResponseParser();
-    private static readonly IResponseParser<FullStatus> FullStatusResponseParser = new ThrowResponseParser<FullStatus>();
+    private static readonly IResponseParser<FullStatus> FullStatusResponseParser = new FullStatusResponseParser();
 
     internal McQueryClient(UdpClient socket, IRequestFactory requestFactory, ISessionStorage sessionStorage)
     {
@@ -109,10 +109,4 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
         GC.SuppressFinalize(this);
         isDisposed = true;
     }
-}
-
-// TODO: remove
-internal class ThrowResponseParser<T> : IResponseParser<T>
-{
-    public T Parse(byte[] data) => throw new NotImplementedException();
 }
