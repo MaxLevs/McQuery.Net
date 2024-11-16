@@ -1,7 +1,9 @@
 # McQueryLib.Net
+
 Library for .Net which implements Minecraft Query protocol. You can use it for getting statuses of a Minecraft server.
 
 # Example of using
+
 ```cs
 static async Task DoSomething(IEnumerable<IPEndPoint> mcServersEndPoints)
 {
