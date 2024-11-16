@@ -4,11 +4,16 @@ using McQuery.Net.Abstract;
 
 namespace McQuery.Net.Data.Providers;
 
+/// <summary>
+/// Implementation of <see cref="ISessionStorage"/>.
+/// </summary>
+/// <param name="sessionIdProvider"><see cref="IServiceProvider"/>.</param>
 internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionStorage
 {
     private IAuthOnlyClient? authClient;
     private readonly ConcurrentDictionary<IPEndPoint, Session> sessionsByEndpoints = new();
 
+    /// <inheritdoc />
     public async Task<Session> GetAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default)
     {
         bool sessionExists = sessionsByEndpoints.TryGetValue(serverEndpoint, out Session? session);

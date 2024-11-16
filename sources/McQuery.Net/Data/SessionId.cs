@@ -3,6 +3,13 @@ namespace McQuery.Net.Data;
 /// <summary>
 /// Represents Session Identifier.
 /// </summary>
+/// <remarks>
+/// Minecraft server does not validate this value but store along with <see cref="ChallengeToken"/> as long as handshake session
+/// for current issuer is alive.
+/// Can be rewritten by new value if current client send another one handshake request.
+/// Server sends stored <see cref="SessionId"/> in every response (even if status request contains different <see cref="SessionId"/>
+/// compared to handshake request, response contains actual <see cref="SessionId"/> from the last handshake request).
+/// </remarks>
 internal class SessionId
 {
     private byte[] Data { get; }

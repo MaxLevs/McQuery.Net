@@ -1,9 +1,13 @@
 namespace McQuery.Net.Data.Providers;
 
+/// <summary>
+/// Implementation of <see cref="IServiceProvider"/>.
+/// </summary>
 internal class SessionIdProvider : ISessionIdProvider
 {
     private static uint counter;
 
+    /// <inheritdoc />
     public SessionId Get()
     {
         uint currentValue = Interlocked.Increment(ref counter);

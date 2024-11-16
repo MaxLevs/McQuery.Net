@@ -9,13 +9,16 @@ using McQuery.Net.Data.Responses;
 
 namespace McQuery.Net;
 
+/// <summary>
+/// Implementation of <see cref="IMcQueryClient"/>.
+/// </summary>
 [PublicAPI]
 public class McQueryClient : IMcQueryClient, IAuthOnlyClient
 {
     private readonly UdpClient socket;
     private readonly IRequestFactory requestFactory;
     private readonly ISessionStorage sessionStorage;
-    private int responseTimeoutSeconds = 5; // Temp value
+    private int responseTimeoutSeconds = 5; // TODO
 
     private static readonly IResponseParser<ChallengeToken> HandshakeResponseParser = new HandshakeResponseParser();
     private static readonly IResponseParser<BasicStatus> BasicStatusResponseParser = new BasicStatusResponseParser();
@@ -28,26 +31,31 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
         this.socket = socket;
     }
 
-    public async Task<BasicStatus> GetBasicStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default) =>
+    /// <inheritdoc />
+    public async Task<BasicStatus> GetBasicStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
         await SendRequestAsync(
             serverEndpoint,
             session => requestFactory.GetBasicStatusRequest(session),
             BasicStatusResponseParser,
             cancellationToken);
 
-    public async Task<FullStatus> GetFullStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default) =>
+    /// <inheritdoc />
+    public async Task<FullStatus> GetFullStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
         await SendRequestAsync(
             serverEndpoint,
             session => requestFactory.GetFullStatusRequest(session),
             FullStatusResponseParser,
             cancellationToken);
 
-    public BasicStatus GetBasicStatus(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default) =>
+    /// <inheritdoc />
+    public BasicStatus GetBasicStatus(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
         GetBasicStatusAsync(serverEndpoint, cancellationToken).GetAwaiter().GetResult();
 
-    public FullStatus GetFullStatus(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default) =>
+    /// <inheritdoc />
+    public FullStatus GetFullStatus(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
         GetFullStatusAsync(serverEndpoint, cancellationToken).GetAwaiter().GetResult();
 
+    /// <inheritdoc />
     async Task<ChallengeToken> IAuthOnlyClient.HandshakeAsync(
         IPEndPoint serverEndpoint,
         SessionId sessionId,

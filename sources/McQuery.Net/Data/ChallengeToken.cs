@@ -3,6 +3,9 @@ using McQuery.Net.Exceptions;
 
 namespace McQuery.Net.Data;
 
+/// <summary>
+/// Secret value provided by Minecraft server to issue status requests.
+/// </summary>
 internal record ChallengeToken : IExpirable
 {
     private const int AlivePeriod = 29;
