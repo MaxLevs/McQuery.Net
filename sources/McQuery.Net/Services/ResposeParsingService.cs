@@ -16,7 +16,7 @@ public static class ResposeParsingService
     public static SessionId ParseSessionId(ref SequenceReader<byte> reader)
     {
         if (reader.UnreadSequence.Length < 4) throw new IncorrectPackageDataException(reader.Sequence.ToArray());
-        byte[]? sessionIdBytes = new byte[4];
+        byte[] sessionIdBytes = new byte[4];
         Span<byte> sessionIdSpan = new(sessionIdBytes);
         reader.TryCopyTo(sessionIdSpan);
         reader.Advance(4);
@@ -31,10 +31,10 @@ public static class ResposeParsingService
     /// <returns>byte[] array which contains ChallengeToken as big-endian</returns>
     public static byte[] ParseHandshake(RawResponse rawResponse)
     {
-        byte[]? data = (byte[])rawResponse.RawData.Clone();
+        byte[] data = (byte[])rawResponse.RawData.Clone();
 
         if (data.Length < 5) throw new IncorrectPackageDataException(data);
-        byte[]? response = BitConverter.GetBytes(int.Parse(Encoding.ASCII.GetString(data, 5, rawResponse.RawData.Length - 6)));
+        byte[] response = BitConverter.GetBytes(int.Parse(Encoding.ASCII.GetString(data, 5, rawResponse.RawData.Length - 6)));
         if (BitConverter.IsLittleEndian) response = response.Reverse().ToArray();
 
         return response;
@@ -48,18 +48,18 @@ public static class ResposeParsingService
         SequenceReader<byte> reader = new(new ReadOnlySequence<byte>(rawResponse.RawData));
         reader.Advance(1); // Skip Type
 
-        SessionId? sessionId = ParseSessionId(ref reader);
+        SessionId sessionId = ParseSessionId(ref reader);
 
-        string? motd = ReadString(ref reader);
-        string? gameType = ReadString(ref reader);
-        string? map = ReadString(ref reader);
+        string motd = ReadString(ref reader);
+        string gameType = ReadString(ref reader);
+        string map = ReadString(ref reader);
         int numPlayers = int.Parse(ReadString(ref reader));
         int maxPlayers = int.Parse(ReadString(ref reader));
 
         if (!reader.TryReadLittleEndian(out short port))
             throw new IncorrectPackageDataException(rawResponse.RawData);
 
-        string? hostIp = ReadString(ref reader);
+        string hostIp = ReadString(ref reader);
 
         ServerBasicStateResponse serverInfo = new(
             rawResponse.ServerUUID,
@@ -89,23 +89,23 @@ public static class ResposeParsingService
         SequenceReader<byte> reader = new(new ReadOnlySequence<byte>(rawResponse.RawData));
         reader.Advance(1); // Skip Type
 
-        SessionId? sessionId = ParseSessionId(ref reader);
+        SessionId sessionId = ParseSessionId(ref reader);
 
         if (!reader.IsNext(constant1, true))
             throw new IncorrectPackageDataException(rawResponse.RawData);
 
-        Dictionary<string, string>? statusKeyValues = new();
+        Dictionary<string, string> statusKeyValues = new();
         while (!reader.IsNext(0, true))
         {
-            string? key = ReadString(ref reader);
-            string? value = ReadString(ref reader);
+            string key = ReadString(ref reader);
+            string value = ReadString(ref reader);
             statusKeyValues.Add(key, value);
         }
 
         if (!reader.IsNext(constant2, true)) // Padding: 10 bytes constant
             throw new IncorrectPackageDataException(rawResponse.RawData);
 
-        List<string>? players = new();
+        List<string> players = new();
         while (!reader.IsNext(0, true)) players.Add(ReadString(ref reader));
 
         ServerFullStateResponse fullState = new

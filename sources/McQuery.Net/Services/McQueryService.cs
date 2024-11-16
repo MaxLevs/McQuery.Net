@@ -5,13 +5,14 @@ using McQuery.Net.Data.Packages.Responses;
 
 namespace McQuery.Net.Services;
 
+[PublicAPI]
 public class McQueryService : IDisposable
 {
     public McQueryService(
         Random random,
         uint maxTriesBeforeSocketInvalidate,
         int receiveAwaitInterval,
-        int retryAwayitShortInteval,
+        int retryAwaitShortInterval,
         int retryAwaitLongInterval)
     {
         sessionIdProviderService = new SessionIdProviderService(random);
@@ -19,16 +20,16 @@ public class McQueryService : IDisposable
         udpService = new UdpSendReceiveService(receiveAwaitInterval);
 
         MaxTriesBeforeSocketInvalidate = maxTriesBeforeSocketInvalidate;
-        RetryAwaitShortInterval = retryAwayitShortInteval;
+        RetryAwaitShortInterval = retryAwaitShortInterval;
         RetryAwaitLongInterval = retryAwaitLongInterval;
     }
 
     public McQueryService(
         uint maxTriesBeforeSocketInvalidate,
         int receiveAwaitInterval,
-        int retryAwayitShortInteval,
+        int retryAwaitShortInterval,
         int retryAwaitLongInterval)
-        : this(new Random(), maxTriesBeforeSocketInvalidate, receiveAwaitInterval, retryAwayitShortInteval, retryAwaitLongInterval)
+        : this(new Random(), maxTriesBeforeSocketInvalidate, receiveAwaitInterval, retryAwaitShortInterval, retryAwaitLongInterval)
     {
     }
 
@@ -66,7 +67,7 @@ public class McQueryService : IDisposable
 
     private async Task InvalidateChallengeToken(Server server)
     {
-        Request? request = RequestFormingService.HandshakeRequestPackage(server.SessionId);
+        Request request = RequestFormingService.HandshakeRequestPackage(server.SessionId);
         IResponse response;
 
         while (true)
@@ -77,7 +78,7 @@ public class McQueryService : IDisposable
             {
                 if (ServersTimeoutCounters[server] > MaxTriesBeforeSocketInvalidate)
                 {
-                    Task? delayTask = Task.Delay(RetryAwaitLongInterval);
+                    Task delayTask = Task.Delay(RetryAwaitLongInterval);
 
                     server.InvalidateSocket();
                     ResetTimeoutCounter(server);
@@ -112,17 +113,17 @@ public class McQueryService : IDisposable
 
         while (true)
         {
-            Request? request = RequestFormingService.GetBasicStatusRequestPackage(server.SessionId, server.ChallengeToken);
+            Request request = RequestFormingService.GetBasicStatusRequestPackage(server.SessionId, server.ChallengeToken);
             response = await udpService.SendReceive(server, request);
 
             if (response is TimeoutResponse)
             {
                 if (ServersTimeoutCounters[server] > MaxTriesBeforeSocketInvalidate)
                 {
-                    Task? delayTask = Task.Delay(RetryAwaitLongInterval);
+                    Task delayTask = Task.Delay(RetryAwaitLongInterval);
 
                     server.InvalidateSocket();
-                    Task? invalidateTask = InvalidateChallengeToken(server);
+                    Task invalidateTask = InvalidateChallengeToken(server);
                     ResetTimeoutCounter(server);
 
                     Task.WaitAll(new Task[] { delayTask, invalidateTask });
@@ -139,7 +140,7 @@ public class McQueryService : IDisposable
             break;
         }
 
-        ServerBasicStateResponse? basicStateResponse = ResposeParsingService.ParseBasicState((RawResponse)response);
+        ServerBasicStateResponse basicStateResponse = ResposeParsingService.ParseBasicState((RawResponse)response);
 
         return basicStateResponse;
     }
@@ -155,17 +156,17 @@ public class McQueryService : IDisposable
 
         while (true)
         {
-            Request? request = RequestFormingService.GetFullStatusRequestPackage(server.SessionId, server.ChallengeToken);
+            Request request = RequestFormingService.GetFullStatusRequestPackage(server.SessionId, server.ChallengeToken);
             response = await udpService.SendReceive(server, request);
 
             if (response is TimeoutResponse)
             {
                 if (ServersTimeoutCounters[server] > MaxTriesBeforeSocketInvalidate)
                 {
-                    Task? delayTask = Task.Delay(RetryAwaitLongInterval);
+                    Task delayTask = Task.Delay(RetryAwaitLongInterval);
 
                     server.InvalidateSocket();
-                    Task? invalidateTask = InvalidateChallengeToken(server);
+                    Task invalidateTask = InvalidateChallengeToken(server);
                     ResetTimeoutCounter(server);
 
                     Task.WaitAll(new Task[] { delayTask, invalidateTask });
@@ -182,7 +183,7 @@ public class McQueryService : IDisposable
             break;
         }
 
-        ServerFullStateResponse? fullStateResponse = ResposeParsingService.ParseFullState((RawResponse)response);
+        ServerFullStateResponse fullStateResponse = ResposeParsingService.ParseFullState((RawResponse)response);
 
         return fullStateResponse;
     }
@@ -197,16 +198,17 @@ public class McQueryService : IDisposable
 
     public void Dispose(bool disposing)
     {
-        if (!disposed)
+        if (disposed) return;
+
+        if (disposing)
         {
-            if (disposing)
-                foreach (KeyValuePair<Server, int> record in ServersTimeoutCounters)
-                    record.Key.Dispose();
-
-            ServersTimeoutCounters.Clear();
-
-            disposed = true;
+            foreach (KeyValuePair<Server, int> record in ServersTimeoutCounters)
+                record.Key.Dispose();
         }
+
+        ServersTimeoutCounters.Clear();
+
+        disposed = true;
     }
 
     ~McQueryService()

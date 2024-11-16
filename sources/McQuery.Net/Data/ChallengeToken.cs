@@ -2,17 +2,17 @@ namespace McQuery.Net.Data;
 
 public class ChallengeToken
 {
-    private byte[]? _challengeToken;
+    private byte[]? challengeToken;
 
     private const int alivePeriod = 30000; // Milliseconds before revoking
 
     private DateTime revokeDateTime;
 
-    public bool IsFine => _challengeToken != null && DateTime.Now < revokeDateTime;
+    public bool IsFine => challengeToken != null && DateTime.Now < revokeDateTime;
 
     public ChallengeToken()
     {
-        _challengeToken = null;
+        challengeToken = null;
     }
 
     public ChallengeToken(byte[] challengeToken)
@@ -22,31 +22,31 @@ public class ChallengeToken
 
     public void UpdateToken(byte[] challengeToken)
     {
-        _challengeToken = (byte[])challengeToken.Clone();
+        this.challengeToken = (byte[])challengeToken.Clone();
         revokeDateTime = DateTime.Now.AddMilliseconds(alivePeriod);
     }
 
     public string GetString()
     {
-        ArgumentNullException.ThrowIfNull(_challengeToken);
+        ArgumentNullException.ThrowIfNull(challengeToken);
 
-        return BitConverter.ToString(_challengeToken);
+        return BitConverter.ToString(challengeToken);
     }
 
     public byte[] GetBytes()
     {
-        ArgumentNullException.ThrowIfNull(_challengeToken);
+        ArgumentNullException.ThrowIfNull(challengeToken);
 
         byte[] challengeTokenSnapshot = new byte[4];
-        Buffer.BlockCopy(_challengeToken, 0, challengeTokenSnapshot, 0, 4);
+        Buffer.BlockCopy(challengeToken, 0, challengeTokenSnapshot, 0, 4);
 
         return challengeTokenSnapshot;
     }
 
     public void WriteTo(List<byte> list)
     {
-        ArgumentNullException.ThrowIfNull(_challengeToken);
+        ArgumentNullException.ThrowIfNull(challengeToken);
 
-        list.AddRange(_challengeToken);
+        list.AddRange(challengeToken);
     }
 }

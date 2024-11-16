@@ -8,14 +8,14 @@ public class SessionIdProviderService
     public SessionIdProviderService(Random random)
     {
         this.random = random;
-        ReservedIds = new List<SessionId>();
-        IdCounter = new ByteCounter();
+        reservedIds = [];
+        idCounter = new ByteCounter();
     }
 
 
-    private readonly List<SessionId> ReservedIds;
+    private readonly List<SessionId> reservedIds;
 
-    private Random random;
+    private readonly Random random;
 
     public SessionId GenerateRandomId()
     {
@@ -36,12 +36,12 @@ public class SessionIdProviderService
     }
 
 
-    private readonly ByteCounter IdCounter = new();
+    private readonly ByteCounter idCounter;
 
-    public SessionId GetUinqueId()
+    public SessionId GetUniqueId()
     {
         byte[] sessionIdData = new byte[4];
-        if (!IdCounter.GetNext(sessionIdData))
+        if (!idCounter.GetNext(sessionIdData))
         {
             // find released sessionIds
         }
@@ -54,8 +54,8 @@ public class SessionIdProviderService
 
     private void ReserveId(SessionId sessionId)
     {
-        ReservedIds.Add(sessionId);
+        reservedIds.Add(sessionId);
     }
 
-    public bool IsIdReserved(SessionId sessionId) => ReservedIds.IndexOf(sessionId) != -1;
+    public bool IsIdReserved(SessionId sessionId) => reservedIds.IndexOf(sessionId) != -1;
 }

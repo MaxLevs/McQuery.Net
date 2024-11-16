@@ -6,7 +6,7 @@ using McQuery.Net.Data.Packages.Responses;
 
 namespace McQuery.Net.Services;
 
-// todo: add resend N times before returning TimeoutResponce
+// todo: add resend N times before returning TimeoutResponse
 // todo: add cancellation token support
 public class UdpSendReceiveService
 {

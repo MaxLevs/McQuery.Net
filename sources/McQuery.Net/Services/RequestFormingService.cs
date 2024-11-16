@@ -9,11 +9,11 @@ namespace McQuery.Net.Services;
 /// </summary>
 public static class RequestFormingService
 {
-    private static readonly byte[] MagicConst = { 0xfe, 0xfd };
+    private static readonly byte[] MagicConst = [0xfe, 0xfd];
 
-    private static readonly byte[] ChallengeRequestConst = { 0x09 };
+    private static readonly byte[] ChallengeRequestConst = [0x09];
 
-    private static readonly byte[] StatusRequestConst = { 0x00 };
+    private static readonly byte[] StatusRequestConst = [0x00];
 
     public static Request HandshakeRequestPackage(SessionId sessionId)
     {
@@ -51,7 +51,7 @@ public static class RequestFormingService
         data.AddRange(StatusRequestConst);
         sessionId.WriteTo(data);
         challengeToken.WriteTo(data);
-        data.AddRange(new byte[] { 0x00, 0x00, 0x00, 0x00 }); // Padding
+        data.AddRange([0x00, 0x00, 0x00, 0x00]); // Padding
 
         Request request = new(data.ToArray());
 

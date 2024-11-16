@@ -6,30 +6,30 @@ namespace McQuery.Net.Data;
 /// </summary>
 public class SessionId
 {
-    private readonly byte[] _sessionId;
+    private readonly byte[] sessionId;
 
     public SessionId(byte[] sessionId)
     {
-        _sessionId = sessionId;
+        this.sessionId = sessionId;
     }
 
-    public string GetString() => BitConverter.ToString(_sessionId);
+    public string GetString() => BitConverter.ToString(sessionId);
 
     public byte[] GetBytes()
     {
-        byte[]? sessionIdSnapshot = new byte[4];
-        Buffer.BlockCopy(_sessionId, 0, sessionIdSnapshot, 0, 4);
+        byte[] sessionIdSnapshot = new byte[4];
+        Buffer.BlockCopy(sessionId, 0, sessionIdSnapshot, 0, 4);
 
         return sessionIdSnapshot;
     }
 
     public void WriteTo(List<byte> list)
     {
-        list.AddRange(_sessionId);
+        list.AddRange(sessionId);
     }
 
     public override bool Equals(object? obj) =>
-        obj is SessionId anotherSessionId && _sessionId.SequenceEqual(anotherSessionId._sessionId);
+        obj is SessionId anotherSessionId && sessionId.SequenceEqual(anotherSessionId.sessionId);
 
-    public override int GetHashCode() => BitConverter.ToInt32(_sessionId, 0);
+    public override int GetHashCode() => BitConverter.ToInt32(sessionId, 0);
 }
