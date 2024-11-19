@@ -1,4 +1,0 @@
-﻿<Solution>
-    <Project Path="sources\McQuery.Net.Samples\McQuery.Net.Samples.csproj" Type="Classic C#"/>
-    <Project Path="sources\McQuery.Net\McQuery.Net.csproj" Type="Classic C#"/>
-</Solution>

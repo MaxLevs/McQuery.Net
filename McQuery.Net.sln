@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McQuery.Net", "sources\McQuery.Net\McQuery.Net.csproj", "{2DDC52DA-E5E5-4685-9DFB-08365C6C1771}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McQuery.Net.Samples", "sources\McQuery.Net.Samples\McQuery.Net.Samples.csproj", "{4264FB51-B938-46ED-907A-AAD0AC9363E7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DDC52DA-E5E5-4685-9DFB-08365C6C1771}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DDC52DA-E5E5-4685-9DFB-08365C6C1771}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DDC52DA-E5E5-4685-9DFB-08365C6C1771}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DDC52DA-E5E5-4685-9DFB-08365C6C1771}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4264FB51-B938-46ED-907A-AAD0AC9363E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4264FB51-B938-46ED-907A-AAD0AC9363E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4264FB51-B938-46ED-907A-AAD0AC9363E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4264FB51-B938-46ED-907A-AAD0AC9363E7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
