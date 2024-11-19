@@ -71,6 +71,7 @@ internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionSt
     }
 
     private bool _isDisposed;
+
     public void Dispose()
     {
         if (_isDisposed) return;
