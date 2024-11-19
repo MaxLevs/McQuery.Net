@@ -71,13 +71,12 @@ internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionSt
     }
 
     private bool _isDisposed;
-
     public void Dispose()
     {
         if (_isDisposed) return;
+        _isDisposed = true;
 
         _authClient?.Dispose();
         GC.SuppressFinalize(this);
-        _isDisposed = true;
     }
 }

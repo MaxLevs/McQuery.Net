@@ -131,16 +131,14 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
         }
     }
 
-
     private bool _isDisposed;
-
     public void Dispose()
     {
         if (_isDisposed) return;
+        _isDisposed = true;
 
         _socket.Dispose();
         _sessionStorage.Dispose();
         GC.SuppressFinalize(this);
-        _isDisposed = true;
     }
 }
