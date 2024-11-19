@@ -16,7 +16,7 @@ env:
   DOTNET_NOLOGO: true
   NuGetDirectory: ${{github.workspace}}/nuget
   DOTNET_TARGET_VERSION: 8.0.x
-  VERSION_SUFFIX: ${{ github.run_number }}
+  BUILD_NUMBER: ${{ github.run_number }}
 
 defaults:
   run:
@@ -38,7 +38,7 @@ jobs:
 
 
       # Create the NuGet package in the folder from the environment variable NuGetDirectory
-      - run: dotnet pack --version-suffix ".${{ env.VERSION_SUFFIX }}" --configuration Release --output ${{ env.NuGetDirectory }}
+      - run: dotnet pack --version-suffix ".${{ env.BUILD_NUMBER }}" --configuration Release --output ${{ env.NuGetDirectory }}
 
       # Publish the NuGet package as an artifact, so they can be used in the following jobs
       - uses: actions/upload-artifact@v3
