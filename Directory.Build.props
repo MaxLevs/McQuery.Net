@@ -13,6 +13,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <VersionPrefix>2.0.0</VersionPrefix>
+    <VersionSuffix/>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>$(VersionPrefix)$(VersionSuffix)</Version>
     <Authors>MaxLevs</Authors>
     <Copyright>Copyright (c) 2021-$([System.DateTime]::UtcNow.ToString('yyyy')) $(Authors)</Copyright>
     <Description>
