@@ -17,11 +17,10 @@ public class McQueryClientFactory : IMcQueryClientFactory
     {
         _loggerFactory = loggerFactory;
         _sessionIdProvider = new Lazy<ISessionIdProvider>(() => new SessionIdProvider(), isThreadSafe: true);
-       _client = new Lazy<IMcQueryClient>(AcquireClient, isThreadSafe: true);
+        _client = new Lazy<IMcQueryClient>(AcquireClient, isThreadSafe: true);
     }
 
     public IMcQueryClient Get() => _client.Value;
-
 
     private IMcQueryClient AcquireClient()
     {

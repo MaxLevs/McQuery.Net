@@ -27,11 +27,12 @@ public static class CancellationTokenTimeoutEnrichHelper
             return new CancellationTokenSourceWithTimeout(
                 timeoutSource,
                 CancellationTokenSource.CreateLinkedTokenSource(
-                cancellationToken,
-                timeoutSource.Token));
+                    cancellationToken,
+                    timeoutSource.Token));
         }
 
         private bool _isDisposed = false;
+
         public void Dispose()
         {
             if (_isDisposed) return;
