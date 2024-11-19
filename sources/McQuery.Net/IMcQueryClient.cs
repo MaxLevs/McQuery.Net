@@ -17,9 +17,6 @@ public interface IMcQueryClient : IDisposable
     /// <returns><see cref="BasicStatus"/>.</returns>
     Task<BasicStatus> GetBasicStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default);
 
-    /// <inheritdoc cref="GetBasicStatusAsync"/>
-    BasicStatus GetBasicStatus(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default);
-
     /// <summary>
     /// Get <see cref="FullStatus"/>.
     /// </summary>
@@ -30,7 +27,4 @@ public interface IMcQueryClient : IDisposable
     /// <param name="cancellationToken"><see cref="CancellationToken"/>.</param>
     /// <returns><see cref="FullStatus"/>.</returns>
     Task<FullStatus> GetFullStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default);
-
-    /// <inheritdoc cref="GetFullStatusAsync"/>
-    FullStatus GetFullStatus(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default);
 }

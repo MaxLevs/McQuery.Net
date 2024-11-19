@@ -1,11 +1,15 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Sockets;
 using McQuery.Net.Data;
 using McQuery.Net.Internal.Abstract;
 using McQuery.Net.Internal.Data;
 using McQuery.Net.Internal.Factories;
+using McQuery.Net.Internal.Helpers;
 using McQuery.Net.Internal.Parsers;
 using McQuery.Net.Internal.Providers;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
 
 namespace McQuery.Net;
 
@@ -15,49 +19,48 @@ namespace McQuery.Net;
 [UsedImplicitly]
 public class McQueryClient : IMcQueryClient, IAuthOnlyClient
 {
+    [SuppressMessage("Usage", "VSTHRD012:Provide JoinableTaskFactory where allowed")]
+    private readonly AsyncReaderWriterLock _locker = new();
+
     private readonly UdpClient _socket;
     private readonly IRequestFactory _requestFactory;
     private readonly ISessionStorage _sessionStorage;
-    private int _responseTimeoutSeconds = 5; // TODO
+    private readonly ILogger _logger;
+
+    private const int ResponseTimeoutSeconds = 5; // TODO: into the config
 
     private static readonly IResponseParser<ChallengeToken> handshakeResponseParser = new HandshakeResponseParser();
     private static readonly IResponseParser<BasicStatus> basicStatusResponseParser = new BasicStatusResponseParser();
     private static readonly IResponseParser<FullStatus> fullStatusResponseParser = new FullStatusResponseParser();
 
-    internal McQueryClient(UdpClient socket, IRequestFactory requestFactory, ISessionStorage sessionStorage)
+    internal McQueryClient(
+        UdpClient socket,
+        IRequestFactory requestFactory,
+        ISessionStorage sessionStorage,
+        ILogger<McQueryClient> logger
+    )
     {
         _requestFactory = requestFactory;
         _sessionStorage = sessionStorage;
+        _logger = logger;
         _socket = socket;
     }
 
     /// <inheritdoc />
-    public async Task<BasicStatus> GetBasicStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken)
-    {
-        return await SendRequestAsync(
+    public async Task<BasicStatus> GetBasicStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
+        await SendRequestAsync(
             serverEndpoint,
             session => _requestFactory.GetBasicStatusRequest(session),
             basicStatusResponseParser,
             cancellationToken);
-    }
 
     /// <inheritdoc />
-    public async Task<FullStatus> GetFullStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken)
-    {
-        return await SendRequestAsync(
+    public async Task<FullStatus> GetFullStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
+        await SendRequestAsync(
             serverEndpoint,
             session => _requestFactory.GetFullStatusRequest(session),
             fullStatusResponseParser,
             cancellationToken);
-    }
-
-    /// <inheritdoc />
-    public BasicStatus GetBasicStatus(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
-        GetBasicStatusAsync(serverEndpoint, cancellationToken).GetAwaiter().GetResult();
-
-    /// <inheritdoc />
-    public FullStatus GetFullStatus(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
-        GetFullStatusAsync(serverEndpoint, cancellationToken).GetAwaiter().GetResult();
 
     /// <inheritdoc />
     async Task<ChallengeToken> IAuthOnlyClient.HandshakeAsync(
@@ -67,7 +70,6 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
     )
     {
         var packet = _requestFactory.GetHandshakeRequest(sessionId);
-
         return await SendRequestAsync(
             serverEndpoint,
             packet,
@@ -98,25 +100,37 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
         CancellationToken cancellationToken = default
     )
     {
-        Console.WriteLine(
-            $"Sending {packet.Length} bytes to {serverEndpoint} with content {BitConverter.ToString(packet.ToArray())}");
+        _logger.LogDebug(
+            "Sending {PacketLength} bytes to {Endpoint} with content {Content}",
+            packet.Length,
+            serverEndpoint,
+            BitConverter.ToString(packet.ToArray()));
 
-        await _socket.SendAsync(packet, serverEndpoint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        var response = await ExecuteRequestConcurrentlyAsync();
 
-        using CancellationTokenSource timeoutSource = new(TimeSpan.FromSeconds(_responseTimeoutSeconds));
-        using var linkedSource =
-            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token);
+        _logger.LogDebug(
+            "Received response from server {Endpoint} [{Content}]",
+            serverEndpoint,
+            BitConverter.ToString(response.Buffer));
 
-        var tokenWithTimeout = linkedSource.Token;
-        // TODO: common response pool
-        var response = await _socket.ReceiveAsync(tokenWithTimeout).ConfigureAwait(continueOnCapturedContext: false);
-
-        Console.WriteLine($"Received response from server: {BitConverter.ToString(response.Buffer)}");
         var responseData = responseParser.Parse(response.Buffer);
-        Console.WriteLine(responseData);
+        _logger.LogDebug(
+            "Parsed response from server {Endpoint} \n{Response}",
+            serverEndpoint,
+            responseData);
 
         return responseData;
+
+        async Task<UdpReceiveResult> ExecuteRequestConcurrentlyAsync()
+        {
+            using var timeoutSource = cancellationToken.ToSourceWithTimeout(TimeSpan.FromSeconds(ResponseTimeoutSeconds));
+            await using var _ = await _locker.WriteLockAsync(timeoutSource.Token);
+
+            await _socket.SendAsync(packet, serverEndpoint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            return await _socket.ReceiveAsync(timeoutSource.Token).ConfigureAwait(continueOnCapturedContext: false);
+        }
     }
+
 
     private bool _isDisposed;
 
