@@ -33,7 +33,7 @@ internal record ChallengeToken : IExpirable
 
     public static implicit operator byte[](ChallengeToken token)
     {
-        AlreadyExpiredException.ThrowIfExpired(token);
+        ExpiredException.ThrowIfExpired(token);
         return [..token.Data];
     }
 
