@@ -1,7 +1,7 @@
 using System.Net;
-using McQuery.Net.Data;
+using McQuery.Net.Internal.Data;
 
-namespace McQuery.Net.Abstract;
+namespace McQuery.Net.Internal.Abstract;
 
 /// <summary>
 /// Client that provides interface to acquire <see cref="ChallengeToken"/>.
@@ -18,5 +18,6 @@ internal interface IAuthOnlyClient : IDisposable
     internal Task<ChallengeToken> HandshakeAsync(
         IPEndPoint serverEndpoint,
         SessionId sessionId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

@@ -1,5 +1,5 @@
 using System.Net;
-using McQuery.Net.Data.Responses;
+using McQuery.Net.Data;
 
 namespace McQuery.Net;
 

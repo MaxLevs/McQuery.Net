@@ -1,11 +1,12 @@
 using System.Net;
+using McQuery.Net.Internal.Data;
 
-namespace McQuery.Net.Data.Providers;
+namespace McQuery.Net.Internal.Providers;
 
 /// <summary>
 /// Creates and stores <see cref="Session"/> objects.
 /// </summary>
-internal interface ISessionStorage: IDisposable
+internal interface ISessionStorage : IDisposable
 {
     /// <summary>
     /// Gets stored session or acquire new.

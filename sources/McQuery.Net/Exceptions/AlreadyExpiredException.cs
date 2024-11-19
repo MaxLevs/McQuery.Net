@@ -1,11 +1,12 @@
-using McQuery.Net.Abstract;
+using McQuery.Net.Internal.Abstract;
 
 namespace McQuery.Net.Exceptions;
 
 [PublicAPI]
 public class AlreadyExpiredException : ArgumentException
 {
-    internal AlreadyExpiredException(IExpirable expirable) : base($"{expirable.GetType().Name} is already expired")
+    internal AlreadyExpiredException(IExpirable expirable)
+        : base($"{expirable.GetType().Name} is already expired")
     {
     }
 

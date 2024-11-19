@@ -1,4 +1,6 @@
-namespace McQuery.Net.Data.Responses;
+using McQuery.Net.Internal.Data;
+
+namespace McQuery.Net.Data;
 
 [PublicAPI]
 public record StatusBase(

@@ -1,4 +1,6 @@
-namespace McQuery.Net.Data.Providers;
+using McQuery.Net.Internal.Data;
+
+namespace McQuery.Net.Internal.Providers;
 
 /// <summary>
 /// Provides <see cref="SessionId"/> every time it's needed.

@@ -1,8 +1,9 @@
 using System.Collections.Concurrent;
 using System.Net;
-using McQuery.Net.Abstract;
+using McQuery.Net.Internal.Abstract;
+using McQuery.Net.Internal.Data;
 
-namespace McQuery.Net.Data.Providers;
+namespace McQuery.Net.Internal.Providers;
 
 /// <summary>
 /// Implementation of <see cref="ISessionStorage"/>.
@@ -10,13 +11,13 @@ namespace McQuery.Net.Data.Providers;
 /// <param name="sessionIdProvider"><see cref="IServiceProvider"/>.</param>
 internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionStorage
 {
-    private IAuthOnlyClient? authClient;
-    private readonly ConcurrentDictionary<IPEndPoint, Session> sessionsByEndpoints = new();
+    private IAuthOnlyClient? _authClient;
+    private readonly ConcurrentDictionary<IPEndPoint, Session> _sessionsByEndpoints = new();
 
     /// <inheritdoc />
     public async Task<Session> GetAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken = default)
     {
-        bool sessionExists = sessionsByEndpoints.TryGetValue(serverEndpoint, out Session? session);
+        var sessionExists = _sessionsByEndpoints.TryGetValue(serverEndpoint, out var session);
 
         if (sessionExists && !session!.IsExpired)
         {
@@ -25,7 +26,7 @@ internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionSt
 
         if (sessionExists && session!.IsExpired)
         {
-            if (!sessionsByEndpoints.TryRemove(serverEndpoint, out _))
+            if (!_sessionsByEndpoints.TryRemove(serverEndpoint, out _))
             {
                 throw new Exception($"Cannot remove expired session {session} for some reason.");
             }
@@ -36,26 +37,23 @@ internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionSt
 
     internal void Init(IAuthOnlyClient client)
     {
-        if (authClient != null)
-        {
-            throw new InvalidOperationException("SessionStorage already initialized.");
-        }
+        if (_authClient != null) throw new InvalidOperationException("SessionStorage already initialized.");
 
-        authClient = client;
+        _authClient = client;
     }
 
     private async Task<Session> AcquireSession(IPEndPoint serverEndpoint, CancellationToken cancellationToken)
     {
-        if (authClient == null)
+        if (_authClient == null)
         {
             throw new InvalidOperationException("Storage must be initialized before calling this method.");
         }
 
-        SessionId sessionId = sessionIdProvider.Get();
-        ChallengeToken challengeToken = await authClient!.HandshakeAsync(serverEndpoint, sessionId, cancellationToken);
+        var sessionId = sessionIdProvider.Get();
+        var challengeToken = await _authClient!.HandshakeAsync(serverEndpoint, sessionId, cancellationToken);
         Session session = new(sessionId, challengeToken);
 
-        if (!sessionsByEndpoints.TryAdd(serverEndpoint, session))
+        if (!_sessionsByEndpoints.TryAdd(serverEndpoint, session))
         {
             throw new Exception("Cannot add session for endpoint " + serverEndpoint + " for some reason.");
         }
@@ -63,13 +61,14 @@ internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionSt
         return session;
     }
 
-    private bool isDisposed;
+    private bool _isDisposed;
+
     public void Dispose()
     {
-        if(isDisposed) return;
+        if (_isDisposed) return;
 
-        authClient?.Dispose();
+        _authClient?.Dispose();
         GC.SuppressFinalize(this);
-        isDisposed = true;
+        _isDisposed = true;
     }
 }

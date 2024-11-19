@@ -1,4 +1,6 @@
-namespace McQuery.Net.Data.Factories;
+using McQuery.Net.Internal.Data;
+
+namespace McQuery.Net.Internal.Factories;
 
 /// <summary>
 /// Implementation of <see cref="IRequestFactory"/>.
@@ -7,7 +9,7 @@ internal class RequestFactory : IRequestFactory
 {
     private const byte HandshakeRequestTypeConst = 0x09;
     private const byte StatusRequestTypeConst = 0x00;
-    private static readonly byte[] MagicConst = [0xfe, 0xfd];
+    private static readonly byte[] magicConst = [0xfe, 0xfd];
 
     /// <inheritdoc />
     public byte[] GetHandshakeRequest(SessionId sessionId)
@@ -36,7 +38,7 @@ internal class RequestFactory : IRequestFactory
 
     private static void FormRequestHeader(Stream packetStream, byte packageType, SessionId sessionId)
     {
-        packetStream.Write(MagicConst);
+        packetStream.Write(magicConst);
         packetStream.Write([packageType]);
         packetStream.Write(sessionId);
     }

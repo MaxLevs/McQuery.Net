@@ -1,4 +1,4 @@
-namespace McQuery.Net.Data;
+namespace McQuery.Net.Internal.Data;
 
 /// <summary>
 /// Represents Session Identifier.
@@ -24,24 +24,24 @@ internal class SessionId
     public SessionId(byte[] data)
     {
         if (data.Length != 4)
+        {
             throw new ArgumentOutOfRangeException(nameof(data), data, "Session identifier must have 4 bytes");
+        }
 
         Data = data;
     }
 
-    public static implicit operator string(SessionId sessionId) =>
-        BitConverter.ToString(sessionId.Data);
+    public static implicit operator string(SessionId sessionId) => BitConverter.ToString(sessionId.Data);
 
-    public static implicit operator byte[](SessionId sessionId) =>
-        [..sessionId.Data];
+    public static implicit operator byte[](SessionId sessionId) => [..sessionId.Data];
 
-    public static implicit operator ReadOnlySpan<byte>(SessionId sessionId) =>
-        (byte[])sessionId;
+    public static implicit operator ReadOnlySpan<byte>(SessionId sessionId) => (byte[])sessionId;
 
-    public override bool Equals(object? obj) =>
-        obj is SessionId anotherSessionId
-        && Data.SequenceEqual(anotherSessionId.Data);
+    public override bool Equals(object? obj)
+    {
+        return obj is SessionId anotherSessionId
+            && Data.SequenceEqual(anotherSessionId.Data);
+    }
 
-    public override int GetHashCode() =>
-        BitConverter.ToInt32(Data, 0);
+    public override int GetHashCode() => BitConverter.ToInt32(Data, startIndex: 0);
 }

@@ -1,16 +1,17 @@
 using System.Net.Sockets;
-using McQuery.Net.Data.Factories;
-using McQuery.Net.Data.Providers;
+using McQuery.Net.Internal.Factories;
+using McQuery.Net.Internal.Providers;
 
 namespace McQuery.Net;
 
+[UsedImplicitly]
 public class McQueryClientFactory : IMcQueryClientFactory
 {
-    private readonly Lazy<ISessionIdProvider> sessionIdProvider = new(() => new SessionIdProvider(), isThreadSafe: true);
+    private readonly Lazy<ISessionIdProvider> _sessionIdProvider = new(() => new SessionIdProvider(), isThreadSafe: true);
 
     public IMcQueryClient Get()
     {
-        SessionStorage sessionStorage = new(sessionIdProvider.Value);
+        SessionStorage sessionStorage = new(_sessionIdProvider.Value);
 
         McQueryClient client = new(
             new UdpClient(),

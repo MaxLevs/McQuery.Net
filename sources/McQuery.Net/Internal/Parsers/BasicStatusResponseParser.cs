@@ -1,13 +1,12 @@
-using System.Buffers;
-using McQuery.Net.Data.Responses;
+using McQuery.Net.Data;
 
-namespace McQuery.Net.Data.Parsers;
+namespace McQuery.Net.Internal.Parsers;
 
 internal class BasicStatusResponseParser : StatusResponseParser<BasicStatus>
 {
     public override BasicStatus Parse(byte[] data)
     {
-        SessionId sessionId = StartParsing(data, out SequenceReader<byte> reader);
+        var sessionId = StartParsing(data, out var reader);
 
         return new BasicStatus(
             ParseNullTerminatingString(ref reader),
@@ -19,7 +18,7 @@ internal class BasicStatusResponseParser : StatusResponseParser<BasicStatus>
             ParseNullTerminatingString(ref reader)
         )
         {
-            SessionId = sessionId
+            SessionId = sessionId,
         };
     }
 }

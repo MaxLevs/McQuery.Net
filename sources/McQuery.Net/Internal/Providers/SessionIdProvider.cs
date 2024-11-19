@@ -1,4 +1,6 @@
-namespace McQuery.Net.Data.Providers;
+using McQuery.Net.Internal.Data;
+
+namespace McQuery.Net.Internal.Providers;
 
 /// <summary>
 /// Implementation of <see cref="IServiceProvider"/>.
@@ -10,13 +12,10 @@ internal class SessionIdProvider : ISessionIdProvider
     /// <inheritdoc />
     public SessionId Get()
     {
-        uint currentValue = Interlocked.Increment(ref counter);
+        var currentValue = Interlocked.Increment(ref counter);
 
-        byte[] bytes = BitConverter.GetBytes(currentValue);
-        if (BitConverter.IsLittleEndian)
-        {
-            Array.Reverse(bytes);
-        }
+        var bytes = BitConverter.GetBytes(currentValue);
+        if (BitConverter.IsLittleEndian) Array.Reverse(bytes);
 
         return new SessionId(bytes);
     }

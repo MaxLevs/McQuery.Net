@@ -1,4 +1,4 @@
-namespace McQuery.Net.Data.Parsers;
+namespace McQuery.Net.Internal.Parsers;
 
 internal interface IResponseParser<out T>
 {

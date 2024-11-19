@@ -1,4 +1,6 @@
-namespace McQuery.Net.Data.Factories;
+using McQuery.Net.Internal.Data;
+
+namespace McQuery.Net.Internal.Factories;
 
 /// <summary>
 /// Provides methods to build requests.

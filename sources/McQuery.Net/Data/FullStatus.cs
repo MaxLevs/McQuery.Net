@@ -1,4 +1,4 @@
-namespace McQuery.Net.Data.Responses;
+namespace McQuery.Net.Data;
 
 /// <summary>
 /// Represents data which is received from FullStatus request.

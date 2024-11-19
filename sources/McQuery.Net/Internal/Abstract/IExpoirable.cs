@@ -1,4 +1,4 @@
-namespace McQuery.Net.Abstract;
+namespace McQuery.Net.Internal.Abstract;
 
 internal interface IExpirable
 {

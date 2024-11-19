@@ -1,4 +1,4 @@
-namespace McQuery.Net.Data;
+namespace McQuery.Net.Internal.Data;
 
 /// <summary>
 /// Represents a combination of <see cref="SessionId"/> and <see cref="ChallengeToken"/> values.

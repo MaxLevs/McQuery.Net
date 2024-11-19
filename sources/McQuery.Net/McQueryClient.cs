@@ -1,51 +1,55 @@
 using System.Net;
 using System.Net.Sockets;
-using McQuery.Net.Abstract;
 using McQuery.Net.Data;
-using McQuery.Net.Data.Factories;
-using McQuery.Net.Data.Parsers;
-using McQuery.Net.Data.Providers;
-using McQuery.Net.Data.Responses;
+using McQuery.Net.Internal.Abstract;
+using McQuery.Net.Internal.Data;
+using McQuery.Net.Internal.Factories;
+using McQuery.Net.Internal.Parsers;
+using McQuery.Net.Internal.Providers;
 
 namespace McQuery.Net;
 
 /// <summary>
 /// Implementation of <see cref="IMcQueryClient"/>.
 /// </summary>
-[PublicAPI]
+[UsedImplicitly]
 public class McQueryClient : IMcQueryClient, IAuthOnlyClient
 {
-    private readonly UdpClient socket;
-    private readonly IRequestFactory requestFactory;
-    private readonly ISessionStorage sessionStorage;
-    private int responseTimeoutSeconds = 5; // TODO
+    private readonly UdpClient _socket;
+    private readonly IRequestFactory _requestFactory;
+    private readonly ISessionStorage _sessionStorage;
+    private int _responseTimeoutSeconds = 5; // TODO
 
-    private static readonly IResponseParser<ChallengeToken> HandshakeResponseParser = new HandshakeResponseParser();
-    private static readonly IResponseParser<BasicStatus> BasicStatusResponseParser = new BasicStatusResponseParser();
-    private static readonly IResponseParser<FullStatus> FullStatusResponseParser = new FullStatusResponseParser();
+    private static readonly IResponseParser<ChallengeToken> handshakeResponseParser = new HandshakeResponseParser();
+    private static readonly IResponseParser<BasicStatus> basicStatusResponseParser = new BasicStatusResponseParser();
+    private static readonly IResponseParser<FullStatus> fullStatusResponseParser = new FullStatusResponseParser();
 
     internal McQueryClient(UdpClient socket, IRequestFactory requestFactory, ISessionStorage sessionStorage)
     {
-        this.requestFactory = requestFactory;
-        this.sessionStorage = sessionStorage;
-        this.socket = socket;
+        _requestFactory = requestFactory;
+        _sessionStorage = sessionStorage;
+        _socket = socket;
     }
 
     /// <inheritdoc />
-    public async Task<BasicStatus> GetBasicStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
-        await SendRequestAsync(
+    public async Task<BasicStatus> GetBasicStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken)
+    {
+        return await SendRequestAsync(
             serverEndpoint,
-            session => requestFactory.GetBasicStatusRequest(session),
-            BasicStatusResponseParser,
+            session => _requestFactory.GetBasicStatusRequest(session),
+            basicStatusResponseParser,
             cancellationToken);
+    }
 
     /// <inheritdoc />
-    public async Task<FullStatus> GetFullStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
-        await SendRequestAsync(
+    public async Task<FullStatus> GetFullStatusAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken)
+    {
+        return await SendRequestAsync(
             serverEndpoint,
-            session => requestFactory.GetFullStatusRequest(session),
-            FullStatusResponseParser,
+            session => _requestFactory.GetFullStatusRequest(session),
+            fullStatusResponseParser,
             cancellationToken);
+    }
 
     /// <inheritdoc />
     public BasicStatus GetBasicStatus(IPEndPoint serverEndpoint, CancellationToken cancellationToken) =>
@@ -59,14 +63,15 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
     async Task<ChallengeToken> IAuthOnlyClient.HandshakeAsync(
         IPEndPoint serverEndpoint,
         SessionId sessionId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        byte[] packet = requestFactory.GetHandshakeRequest(sessionId);
+        var packet = _requestFactory.GetHandshakeRequest(sessionId);
 
         return await SendRequestAsync(
             serverEndpoint,
             packet,
-            HandshakeResponseParser,
+            handshakeResponseParser,
             cancellationToken);
     }
 
@@ -74,47 +79,54 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
         IPEndPoint serverEndpoint,
         Func<Session, ReadOnlyMemory<byte>> packetFactory,
         IResponseParser<T> responseParser,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        Session session = await sessionStorage.GetAsync(serverEndpoint, cancellationToken);
-        ReadOnlyMemory<byte> packet = packetFactory(session);
-        return await SendRequestAsync(serverEndpoint, packet, responseParser, cancellationToken);
+        var session = await _sessionStorage.GetAsync(serverEndpoint, cancellationToken);
+        var packet = packetFactory(session);
+        return await SendRequestAsync(
+            serverEndpoint,
+            packet,
+            responseParser,
+            cancellationToken);
     }
 
     private async Task<T> SendRequestAsync<T>(
         IPEndPoint serverEndpoint,
         ReadOnlyMemory<byte> packet,
         IResponseParser<T> responseParser,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        Console.WriteLine($"Sending {packet.Length} bytes to {serverEndpoint} with content {BitConverter.ToString(packet.ToArray())}");
+        Console.WriteLine(
+            $"Sending {packet.Length} bytes to {serverEndpoint} with content {BitConverter.ToString(packet.ToArray())}");
 
-        await socket.SendAsync(packet, serverEndpoint, cancellationToken).ConfigureAwait(false);
+        await _socket.SendAsync(packet, serverEndpoint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        using CancellationTokenSource timeoutSource = new(TimeSpan.FromSeconds(responseTimeoutSeconds));
-        using CancellationTokenSource linkedSource =
+        using CancellationTokenSource timeoutSource = new(TimeSpan.FromSeconds(_responseTimeoutSeconds));
+        using var linkedSource =
             CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token);
 
-        CancellationToken tokenWithTimeout = linkedSource.Token;
+        var tokenWithTimeout = linkedSource.Token;
         // TODO: common response pool
-        UdpReceiveResult response = await socket.ReceiveAsync(tokenWithTimeout).ConfigureAwait(false);
+        var response = await _socket.ReceiveAsync(tokenWithTimeout).ConfigureAwait(continueOnCapturedContext: false);
 
         Console.WriteLine($"Received response from server: {BitConverter.ToString(response.Buffer)}");
-        T responseData = responseParser.Parse(response.Buffer);
+        var responseData = responseParser.Parse(response.Buffer);
         Console.WriteLine(responseData);
 
         return responseData;
     }
 
+    private bool _isDisposed;
 
-    private bool isDisposed;
     public void Dispose()
     {
-        if(isDisposed) return;
+        if (_isDisposed) return;
 
-        socket.Dispose();
-        sessionStorage.Dispose();
+        _socket.Dispose();
+        _sessionStorage.Dispose();
         GC.SuppressFinalize(this);
-        isDisposed = true;
+        _isDisposed = true;
     }
 }
