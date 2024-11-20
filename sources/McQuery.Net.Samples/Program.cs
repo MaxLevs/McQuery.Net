@@ -55,23 +55,21 @@ catch (Exception ex)
     throw;
 }
 
-public abstract class CommandBase(IPEndPoint endPoint)
+abstract file class CommandBase(IPEndPoint endPoint)
 {
+    protected readonly IPEndPoint EndPoint = endPoint;
+
     public abstract Task ExecuteAsync(IMcQueryClient client, CancellationToken cancellationToken = default);
 }
 
-public class BasicStatusCommand(IPEndPoint endPoint) : CommandBase(endPoint)
+file class BasicStatusCommand(IPEndPoint endPoint) : CommandBase(endPoint)
 {
-    private readonly IPEndPoint _endPoint = endPoint;
-
     public override Task ExecuteAsync(IMcQueryClient client, CancellationToken cancellationToken = default) =>
-        client.GetBasicStatusAsync(_endPoint, cancellationToken);
+        client.GetBasicStatusAsync(EndPoint, cancellationToken);
 }
 
-public class FullStatusCommand(IPEndPoint endPoint) : CommandBase(endPoint)
+file class FullStatusCommand(IPEndPoint endPoint) : CommandBase(endPoint)
 {
-    private readonly IPEndPoint _endPoint = endPoint;
-
     public override Task ExecuteAsync(IMcQueryClient client, CancellationToken cancellationToken = default) =>
-        client.GetFullStatusAsync(_endPoint, cancellationToken);
+        client.GetFullStatusAsync(EndPoint, cancellationToken);
 }
