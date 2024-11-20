@@ -8,19 +8,33 @@
     <IsPackable>false</IsPackable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Deterministic>true</Deterministic>
+    <DebugType>embedded</DebugType>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup>
-    <Authors>MaxLevs</Authors>
-    <Copyright>Copyright (c) 2021-$([System.DateTime]::UtcNow.ToString('yyyy')) $(Authors)</Copyright>
-    <Description>
-      Library for .Net which implements Minecraft Query protocol. You can use it for getting statuses of a Minecraft server.
-    </Description>
+    <VersionPrefix>2.0.0</VersionPrefix>
+    <VersionSuffix/>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Maxim (MaxLevs) Liven</Authors>
     <PackageTags>minecraft, query, client</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright (c) 2021-$([System.DateTime]::UtcNow.ToString('yyyy')) $(Authors)</Copyright>
+    <Version>$(VersionPrefix)$(VersionSuffix)</Version>
+    <BasicPackageUrl>https://github.com/MaxLevs/McQuery.Net</BasicPackageUrl>
+    <PackageProjectUrl>$(BasicPackageUrl)</PackageProjectUrl>
+    <RepositoryUrl>$(BasicPackageUrl)</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>$(ProjectName)</AssemblyName>
+    <RootNamespace>$(ProjectName)</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
