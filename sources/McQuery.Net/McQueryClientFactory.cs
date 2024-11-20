@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace McQuery.Net;
 
+/// <summary>
+/// Implementation of <see cref="IMcQueryClientFactory"/>.
+/// </summary>
 [UsedImplicitly]
 public class McQueryClientFactory : IMcQueryClientFactory
 {
@@ -13,6 +16,10 @@ public class McQueryClientFactory : IMcQueryClientFactory
     private readonly Lazy<ISessionIdProvider> _sessionIdProvider;
     private readonly Lazy<IMcQueryClient> _client;
 
+    /// <summary>
+    /// .ctor.
+    /// </summary>
+    /// <param name="loggerFactory"><see cref="ILoggerFactory"/>.</param>
     public McQueryClientFactory(ILoggerFactory? loggerFactory = null)
     {
         _loggerFactory = loggerFactory;
@@ -20,6 +27,7 @@ public class McQueryClientFactory : IMcQueryClientFactory
         _client = new Lazy<IMcQueryClient>(AcquireClient, isThreadSafe: true);
     }
 
+    /// <inheritdoc/>
     public IMcQueryClient Get() => _client.Value;
 
     private IMcQueryClient AcquireClient()

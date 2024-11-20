@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace McQuery.Net.Internal.Helpers;
 
-public static class CancellationTokenTimeoutEnrichHelper
+internal static class CancellationTokenTimeoutEnrichHelper
 {
     public static CancellationTokenSourceWithTimeout ToSourceWithTimeout(this CancellationToken token, TimeSpan timeout)
         => CancellationTokenSourceWithTimeout.Create(token, timeout);

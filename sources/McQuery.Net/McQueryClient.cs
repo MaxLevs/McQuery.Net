@@ -133,6 +133,7 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
 
     private bool _isDisposed;
 
+    /// <inheritdoc/>
     public void Dispose()
     {
         if (_isDisposed) return;

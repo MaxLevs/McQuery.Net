@@ -8,8 +8,10 @@
     <IsPackable>false</IsPackable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Deterministic>true</Deterministic>
+    <DebugType>embedded</DebugType>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -18,7 +20,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Authors>MaxLevs</Authors>
+    <Authors>Maxim (MaxLevs) Liven</Authors>
     <PackageTags>minecraft, query, client</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -28,6 +30,11 @@
     <PackageProjectUrl>$(BasicPackageUrl)</PackageProjectUrl>
     <RepositoryUrl>$(BasicPackageUrl)</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>$(ProjectName)</AssemblyName>
+    <RootNamespace>$(ProjectName)</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>

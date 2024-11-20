@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>McQuery.Net</PackageId>
     <Description>
       Library for .Net which implements Minecraft Query protocol. You can use it for getting statuses of a Minecraft server.
     </Description>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
