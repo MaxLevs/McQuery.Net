@@ -39,12 +39,7 @@ jobs:
 
       # Create the NuGet package in the folder from the environment variable NuGetDirectory
       - name: Build packages
-        run: |
-          dotnet pack '
-            --property:ContinuousIntegrationBuild=true '
-            --version-suffix ".${{ env.BUILD_NUMBER }}" '
-            --configuration Release '
-            --output ${{ env.NuGetDirectory }}
+        run: dotnet pack --property:ContinuousIntegrationBuild=true --version-suffix ".${{ env.BUILD_NUMBER }}" --configuration Release --output ${{ env.NuGetDirectory }}
 
       # Publish the NuGet package as an artifact, so they can be used in the following jobs
       - uses: actions/upload-artifact@v3
@@ -80,10 +75,7 @@ jobs:
       # If some rules are not applicable, you can disable them
       # using the --excluded-rules or --excluded-rule-ids option
       - name: Validate package
-        run: |
-          meziantou.validate-nuget-package '
-            (Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg") '
-            --excluded-rules LicenseMustBeSet
+        run: meziantou.validate-nuget-package (Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg") --excluded-rules LicenseMustBeSet
 
 
   run_test:
