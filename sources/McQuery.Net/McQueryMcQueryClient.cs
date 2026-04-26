@@ -26,12 +26,11 @@ public class McQueryMcQueryClient : IMcQueryClient, IAuthOnlyMcQueryClient
     private readonly IRequestFactory _requestFactory;
     private readonly ISessionStorage _sessionStorage;
     private readonly ILogger _logger;
+    private readonly IResponseParser<ChallengeToken> _handshakeResponseParser;
+    private readonly IResponseParser<BasicStatus> _basicStatusResponseParser;
+    private readonly IResponseParser<FullStatus> _fullStatusResponseParser;
 
     private const int ResponseTimeoutSeconds = 5; // TODO: into the config
-
-    private static readonly IResponseParser<ChallengeToken> handshakeResponseParser = new HandshakeResponseParser();
-    private static readonly IResponseParser<BasicStatus> basicStatusResponseParser = new BasicStatusResponseParser();
-    private static readonly IResponseParser<FullStatus> fullStatusResponseParser = new FullStatusResponseParser();
 
     internal McQueryMcQueryClient(
         UdpClient socket,
@@ -44,6 +43,9 @@ public class McQueryMcQueryClient : IMcQueryClient, IAuthOnlyMcQueryClient
         _sessionStorage = sessionStorage;
         _logger = logger;
         _socket = socket;
+        _handshakeResponseParser = new HandshakeResponseParser(logger);
+        _basicStatusResponseParser = new BasicStatusResponseParser(logger);
+        _fullStatusResponseParser = new FullStatusResponseParser(logger);
     }
 
     /// <inheritdoc />
@@ -51,7 +53,7 @@ public class McQueryMcQueryClient : IMcQueryClient, IAuthOnlyMcQueryClient
         await SendRequestAsync(
             serverEndpoint,
             session => _requestFactory.GetBasicStatusRequest(session),
-            basicStatusResponseParser,
+            _basicStatusResponseParser,
             cancellationToken);
 
     /// <inheritdoc />
@@ -59,7 +61,7 @@ public class McQueryMcQueryClient : IMcQueryClient, IAuthOnlyMcQueryClient
         await SendRequestAsync(
             serverEndpoint,
             session => _requestFactory.GetFullStatusRequest(session),
-            fullStatusResponseParser,
+            _fullStatusResponseParser,
             cancellationToken);
 
     /// <inheritdoc />
@@ -73,7 +75,7 @@ public class McQueryMcQueryClient : IMcQueryClient, IAuthOnlyMcQueryClient
         return await SendRequestAsync(
             serverEndpoint,
             packet,
-            handshakeResponseParser,
+            _handshakeResponseParser,
             cancellationToken);
     }
 

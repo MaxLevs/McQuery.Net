@@ -1,10 +1,15 @@
 using McQuery.Net.Data;
 using McQuery.Net.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace McQuery.Net.Internal.Parsers;
 
 internal class BasicStatusResponseParser : StatusResponseParser<BasicStatus>
 {
+    public BasicStatusResponseParser(ILogger logger) : base(logger)
+    {
+    }
+
     public override BasicStatus Parse(byte[] data)
     {
         try
@@ -32,10 +37,14 @@ internal class BasicStatusResponseParser : StatusResponseParser<BasicStatus>
                 SessionId = sessionId,
             };
         }
-
+        catch (McQueryException)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
-            throw new McQueryException("Invalid basic status response format", exception);
+            Logger.LogError(exception, "Invalid handshake status response format: [{Data}]", BitConverter.ToString(data));
+            throw new McQueryResponseParsingException("Invalid basic status response format", exception);
         }
     }
 }

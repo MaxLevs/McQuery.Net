@@ -34,7 +34,7 @@ Func<IPEndPoint, CommandBase>[] commandFactories =
 CommandBase[] commands =
 [
     ..
-    from _ in Enumerable.Range(start: 0, count: 5000)
+    from _ in Enumerable.Range(start: 0, count: 2000)
     from fc in commandFactories
     from port in ports
     select fc(new IPEndPoint(IPAddress.Loopback, port)),
