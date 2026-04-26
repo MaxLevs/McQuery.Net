@@ -6,7 +6,8 @@ namespace McQuery.Net.Internal.Parsers;
 
 internal class BasicStatusResponseParser : StatusResponseParser<BasicStatus>
 {
-    public BasicStatusResponseParser(ILogger logger) : base(logger)
+    public BasicStatusResponseParser(ILogger logger)
+        : base(logger)
     {
     }
 
@@ -14,7 +15,6 @@ internal class BasicStatusResponseParser : StatusResponseParser<BasicStatus>
     {
         try
         {
-
             var sessionId = StartParsing(data, out var reader);
 
             var motd = ParseNullTerminatingString(ref reader);

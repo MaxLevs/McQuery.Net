@@ -6,7 +6,8 @@ namespace McQuery.Net.Internal.Parsers;
 
 internal class HandshakeResponseParser : ResponseParserBase, IResponseParser<ChallengeToken>
 {
-    public HandshakeResponseParser(ILogger logger) : base(logger)
+    public HandshakeResponseParser(ILogger logger)
+        : base(logger)
     {
     }
 

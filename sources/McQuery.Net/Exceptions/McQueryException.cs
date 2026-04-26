@@ -18,14 +18,16 @@ public class McQueryException : Exception
     /// <summary>
     /// Initializes new instance of basic exception.
     /// </summary>
-    internal McQueryException(string? message) : base(message)
+    internal McQueryException(string? message)
+        : base(message)
     {
     }
 
     /// <summary>
     /// Initializes new instance of basic exception.
     /// </summary>
-    internal McQueryException(string? message, Exception? innerException) : base(message, innerException)
+    internal McQueryException(string? message, Exception? innerException)
+        : base(message, innerException)
     {
     }
 }

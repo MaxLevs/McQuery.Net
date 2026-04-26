@@ -55,7 +55,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="JetBrains.Annotations"/>
   </ItemGroup>
 
 </Project>

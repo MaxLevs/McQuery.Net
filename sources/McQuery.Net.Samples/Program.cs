@@ -12,13 +12,12 @@ var loggingConfiguration = new ConfigurationBuilder()
     .AddJsonFile("logging.json", optional: false, reloadOnChange: true)
     .Build();
 var serviceProvider = new ServiceCollection()
-    .AddLogging(
-        builder =>
-        {
-            builder.AddConfiguration(loggingConfiguration.GetSection("Logging"));
-            builder.SetMinimumLevel(LogLevel.Debug);
-            builder.AddConsole();
-        })
+    .AddLogging(builder =>
+    {
+        builder.AddConfiguration(loggingConfiguration.GetSection("Logging"));
+        builder.SetMinimumLevel(LogLevel.Debug);
+        builder.AddConsole();
+    })
     .AddSingleton<IMcQueryClientFactory, McQueryClientFactory>()
     .BuildServiceProvider();
 
