@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using McQuery.Net;
+using McQuery.Net.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+var random = new Random(42);
 var loggingConfiguration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("logging.json", optional: false, reloadOnChange: true)
@@ -37,10 +39,9 @@ CommandBase[] commands =
     from port in ports
     select fc(new IPEndPoint(IPAddress.Loopback, port)),
 ];
-Random.Shared.Shuffle(commands);
+random.Shuffle(commands);
 
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-logger.IsEnabled(LogLevel.Trace);
 try
 {
     logger.LogInformation("Starting McQuery.Net.Sample with {Count} requests", commands.Length);
@@ -49,7 +50,7 @@ try
     stopwatch.Stop();
     logger.LogInformation("Finished. It took {Elapsed}", stopwatch.Elapsed);
 }
-catch (Exception ex)
+catch (McQueryException ex)
 {
     logger.LogError(ex, "Cannot finish calculating McQuery.Net.Sample");
     throw;
