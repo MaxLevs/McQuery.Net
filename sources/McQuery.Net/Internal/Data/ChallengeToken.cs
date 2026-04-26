@@ -8,8 +8,8 @@ namespace McQuery.Net.Internal.Data;
 /// </summary>
 internal record ChallengeToken : IExpirable
 {
-    private const int AlivePeriod = 29;
-    private readonly DateTime _expiresAt = DateTime.UtcNow.AddSeconds(AlivePeriod);
+    private static readonly TimeSpan alivePeriod = TimeSpan.FromSeconds(30);
+    private readonly DateTimeOffset _expiresAt = DateTimeOffset.UtcNow.Add(alivePeriod);
 
     /// <summary>
     /// .ctor.
@@ -20,23 +20,28 @@ internal record ChallengeToken : IExpirable
     /// </exception>
     public ChallengeToken(byte[] data)
     {
-        if (data.Length != 4)
-        {
-            throw new ArgumentOutOfRangeException(nameof(data), data, "Challenge token must have 4 bytes");
-        }
+        ValidateHave4Bytes(data);
 
         Data = data;
     }
 
     private byte[] Data { get; }
-    public bool IsExpired => DateTime.UtcNow >= _expiresAt;
+    public bool IsExpired => DateTimeOffset.UtcNow >= _expiresAt;
 
     public static implicit operator byte[](ChallengeToken token)
     {
-        ExpiredException.ThrowIfExpired(token);
+        McQueryExpiredException.ThrowIfExpired(token);
         return [..token.Data];
     }
 
     public static implicit operator ReadOnlySpan<byte>(ChallengeToken token)
         => (byte[])token;
+
+    private static void ValidateHave4Bytes(byte[] data)
+    {
+        if (data.Length != 4)
+        {
+            throw new McQueryException("Challenge token must have 4 bytes");
+        }
+    }
 }

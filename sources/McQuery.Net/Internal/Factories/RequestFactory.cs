@@ -10,6 +10,8 @@ internal class RequestFactory : IRequestFactory
     private const byte HandshakeRequestTypeConst = 0x09;
     private const byte StatusRequestTypeConst = 0x00;
     private static readonly byte[] magicConst = [0xfe, 0xfd];
+    // ReSharper disable once UseUtf8StringLiteral
+    private static readonly byte[] padding = [0x00, 0x00, 0x00, 0x00];
 
     /// <inheritdoc />
     public byte[] GetHandshakeRequest(SessionId sessionId)
@@ -32,7 +34,7 @@ internal class RequestFactory : IRequestFactory
     {
         using MemoryStream packetStream = new();
         FormBasicStatusRequest(packetStream, session);
-        packetStream.Write([0x00, 0x00, 0x00, 0x00]);
+        packetStream.Write(padding);
         return packetStream.ToArray();
     }
 

@@ -6,7 +6,7 @@ namespace McQuery.Net.Internal.Abstract;
 /// <summary>
 /// Client that provides interface to acquire <see cref="ChallengeToken"/>.
 /// </summary>
-internal interface IAuthOnlyClient : IDisposable
+internal interface IAuthOnlyMcQueryClient : IDisposable
 {
     /// <summary>
     /// Request <see cref="ChallengeToken"/> from Minecraft server.

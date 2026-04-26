@@ -1,31 +1,31 @@
-using System.Runtime.Serialization;
-
 namespace McQuery.Net.Exceptions;
 
 /// <summary>
-/// Basic class for all exceptions to this library.
+/// Response parsing exception.
 /// </summary>
 [PublicAPI]
-public class McQueryException : Exception
+public class McQueryResponseParsingException : McQueryException
 {
     /// <summary>
     /// Initializes new instance of basic exception.
     /// </summary>
-    internal McQueryException()
+    internal McQueryResponseParsingException()
     {
     }
 
     /// <summary>
     /// Initializes new instance of basic exception.
     /// </summary>
-    internal McQueryException(string? message) : base(message)
+    internal McQueryResponseParsingException(string? message)
+        : base(message)
     {
     }
 
     /// <summary>
     /// Initializes new instance of basic exception.
     /// </summary>
-    internal McQueryException(string? message, Exception? innerException) : base(message, innerException)
+    internal McQueryResponseParsingException(string? message, Exception? innerException)
+        : base(message, innerException)
     {
     }
 }

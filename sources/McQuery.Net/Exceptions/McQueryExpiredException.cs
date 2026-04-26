@@ -6,9 +6,9 @@ namespace McQuery.Net.Exceptions;
 /// Something was expired.
 /// </summary>
 [PublicAPI]
-public class ExpiredException : McQueryException
+public class McQueryExpiredException : McQueryException
 {
-    internal ExpiredException(IExpirable expirable)
+    internal McQueryExpiredException(IExpirable expirable)
         : base($"{expirable.GetType().Name} is already expired")
     {
     }
@@ -17,12 +17,12 @@ public class ExpiredException : McQueryException
     /// Helper method to throw new exception form <see cref="IExpirable"/>.
     /// </summary>
     /// <param name="expirable">Something that can be expired.</param>
-    /// <exception cref="ExpiredException">Something was expired.</exception>
+    /// <exception cref="McQueryExpiredException">Something was expired.</exception>
     internal static void ThrowIfExpired(IExpirable expirable)
     {
         if (expirable.IsExpired)
         {
-            throw new ExpiredException(expirable);
+            throw new McQueryExpiredException(expirable);
         }
     }
 }

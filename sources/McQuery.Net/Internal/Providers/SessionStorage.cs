@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using McQuery.Net.Exceptions;
 using McQuery.Net.Internal.Abstract;
 using McQuery.Net.Internal.Data;
 using Microsoft.VisualStudio.Threading;
@@ -15,7 +16,7 @@ internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionSt
     [SuppressMessage("Usage", "VSTHRD012:Provide JoinableTaskFactory where allowed")]
     private readonly AsyncReaderWriterLock _locker = new();
 
-    private IAuthOnlyClient? _authClient;
+    private IAuthOnlyMcQueryClient? _authClient;
     private readonly Dictionary<IPEndPoint, Session> _sessionsByEndpoints = new();
 
     /// <inheritdoc />
@@ -23,44 +24,38 @@ internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionSt
     {
         await using var releaser = await _locker.UpgradeableReadLockAsync(cancellationToken);
 
-        var sessionExists = _sessionsByEndpoints.TryGetValue(serverEndpoint, out var session);
-
-        if (sessionExists && !session!.IsExpired)
+        if (_sessionsByEndpoints.TryGetValue(serverEndpoint, out var existingSession) && !existingSession.IsExpired)
         {
-            return session;
-        }
-
-        if (sessionExists && session!.IsExpired)
-        {
-            if (!_sessionsByEndpoints.Remove(serverEndpoint, out session))
-            {
-                throw new Exception($"Cannot remove expired session {session} for some reason.");
-            }
+            return existingSession;
         }
 
         return await AcquireSessionAsync(serverEndpoint, cancellationToken);
     }
 
-    internal void Init(IAuthOnlyClient client)
+    internal void Init(IAuthOnlyMcQueryClient mcQueryClient)
     {
-        if (_authClient != null) throw new InvalidOperationException("SessionStorage already initialized.");
+        ValidateUninitialized();
 
-        _authClient = client;
+        _authClient = mcQueryClient;
     }
 
     private async Task<Session> AcquireSessionAsync(IPEndPoint serverEndpoint, CancellationToken cancellationToken)
     {
+        ValidateInitialized();
+
         await using var releaser = await _locker.WriteLockAsync(cancellationToken);
 
-        var sessionExists = _sessionsByEndpoints.TryGetValue(serverEndpoint, out var currentSession);
-        if (sessionExists && !currentSession!.IsExpired)
+        if (_sessionsByEndpoints.TryGetValue(serverEndpoint, out var existingSession))
         {
-            return currentSession;
-        }
+            if (!existingSession.IsExpired)
+            {
+                return existingSession;
+            }
 
-        if (_authClient == null)
-        {
-            throw new InvalidOperationException("Storage must be initialized before calling this method.");
+            if (!_sessionsByEndpoints.Remove(serverEndpoint, out existingSession))
+            {
+                throw new McQueryException($"Cannot remove expired session {existingSession} for some reason.");
+            }
         }
 
         var sessionId = sessionIdProvider.Get();
@@ -79,5 +74,21 @@ internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionSt
 
         _authClient?.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    private void ValidateUninitialized()
+    {
+        if (_authClient is not null)
+        {
+            throw new McQueryException("SessionStorage is already initialized.");
+        }
+    }
+
+    private void ValidateInitialized()
+    {
+        if (_authClient is null)
+        {
+            throw new McQueryException("Storage must be initialized before calling this method.");
+        }
     }
 }

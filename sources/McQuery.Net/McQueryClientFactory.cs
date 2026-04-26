@@ -34,13 +34,13 @@ public class McQueryClientFactory : IMcQueryClientFactory
     {
         SessionStorage sessionStorage = new(_sessionIdProvider.Value);
 
-        McQueryClient client = new(
+        McQueryMcQueryClient mcQueryClient = new(
             new UdpClient(),
             new RequestFactory(),
             sessionStorage,
-            _loggerFactory?.CreateLogger<McQueryClient>() ?? new NullLogger<McQueryClient>());
-        sessionStorage.Init(client);
+            _loggerFactory?.CreateLogger<McQueryMcQueryClient>() ?? new NullLogger<McQueryMcQueryClient>());
+        sessionStorage.Init(mcQueryClient);
 
-        return client;
+        return mcQueryClient;
     }
 }

@@ -17,7 +17,7 @@ namespace McQuery.Net;
 /// Implementation of <see cref="IMcQueryClient"/>.
 /// </summary>
 [UsedImplicitly]
-public class McQueryClient : IMcQueryClient, IAuthOnlyClient
+public class McQueryMcQueryClient : IMcQueryClient, IAuthOnlyMcQueryClient
 {
     [SuppressMessage("Usage", "VSTHRD012:Provide JoinableTaskFactory where allowed")]
     private readonly AsyncReaderWriterLock _locker = new();
@@ -33,11 +33,11 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
     private static readonly IResponseParser<BasicStatus> basicStatusResponseParser = new BasicStatusResponseParser();
     private static readonly IResponseParser<FullStatus> fullStatusResponseParser = new FullStatusResponseParser();
 
-    internal McQueryClient(
+    internal McQueryMcQueryClient(
         UdpClient socket,
         IRequestFactory requestFactory,
         ISessionStorage sessionStorage,
-        ILogger<McQueryClient> logger
+        ILogger<McQueryMcQueryClient> logger
     )
     {
         _requestFactory = requestFactory;
@@ -63,7 +63,7 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
             cancellationToken);
 
     /// <inheritdoc />
-    async Task<ChallengeToken> IAuthOnlyClient.HandshakeAsync(
+    async Task<ChallengeToken> IAuthOnlyMcQueryClient.HandshakeAsync(
         IPEndPoint serverEndpoint,
         SessionId sessionId,
         CancellationToken cancellationToken
@@ -136,11 +136,16 @@ public class McQueryClient : IMcQueryClient, IAuthOnlyClient
     /// <inheritdoc/>
     public void Dispose()
     {
-        if (_isDisposed) return;
+        if (_isDisposed)
+        {
+            return;
+        }
+
         _isDisposed = true;
 
-        _socket.Dispose();
         _sessionStorage.Dispose();
+        _socket.Dispose();
+        _locker.Dispose();
         GC.SuppressFinalize(this);
     }
 }

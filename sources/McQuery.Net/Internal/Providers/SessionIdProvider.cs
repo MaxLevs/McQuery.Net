@@ -15,7 +15,10 @@ internal class SessionIdProvider : ISessionIdProvider
         var currentValue = Interlocked.Increment(ref counter);
 
         var bytes = BitConverter.GetBytes(currentValue);
-        if (BitConverter.IsLittleEndian) Array.Reverse(bytes);
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(bytes);
+        }
 
         return new SessionId(bytes);
     }

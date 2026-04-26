@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Text;
+using McQuery.Net.Exceptions;
 using McQuery.Net.Internal.Data;
 
 namespace McQuery.Net.Internal.Parsers;
@@ -13,7 +14,10 @@ internal abstract class ResponseParserBase
         ReadOnlySequence<byte> sequence = new(data);
         reader = new SequenceReader<byte>(sequence);
 
-        if (!reader.IsNext([ResponseType], advancePast: true)) throw new InvalidOperationException("Invalid response type");
+        if (!reader.IsNext([ResponseType], advancePast: true))
+        {
+            throw new McQueryResponseParsingException("Invalid response type");
+        }
 
         return ParseSessionId(ref reader);
     }
@@ -22,7 +26,7 @@ internal abstract class ResponseParserBase
     {
         if (reader.UnreadSequence.Length < 4)
         {
-            throw new InvalidOperationException("Session id must contain exactly 4 bytes.");
+            throw new McQueryResponseParsingException("Session id must contain exactly 4 bytes.");
         }
 
         reader.TryReadExact(count: 4, out var sessionIdBytes);
@@ -34,7 +38,7 @@ internal abstract class ResponseParserBase
     {
         if (!reader.TryReadTo(out ReadOnlySequence<byte> bytes, delimiter: 0, advancePastDelimiter: true))
         {
-            throw new InvalidOperationException("Cannot parse null terminating string: terminator was not found.");
+            throw new McQueryResponseParsingException("Cannot parse null terminating string: terminator was not found.");
         }
 
         return Encoding.ASCII.GetString(bytes);
@@ -44,7 +48,7 @@ internal abstract class ResponseParserBase
     {
         if (!reader.TryReadLittleEndian(out short port))
         {
-            throw new InvalidOperationException("Cannot parse short value");
+            throw new McQueryResponseParsingException("Cannot parse short value");
         }
 
         return port;
