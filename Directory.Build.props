@@ -8,7 +8,6 @@
     <IsPackable>false</IsPackable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Deterministic>true</Deterministic>
-    <DebugType>embedded</DebugType>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -31,6 +30,10 @@
     <RepositoryUrl>$(BasicPackageUrl)</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\LICENSE" />
+  </ItemGroup>
 
   <PropertyGroup>
     <AssemblyName>$(ProjectName)</AssemblyName>
