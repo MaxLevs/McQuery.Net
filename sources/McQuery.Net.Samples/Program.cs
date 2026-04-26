@@ -55,6 +55,16 @@ catch (McQueryException ex)
     logger.LogError(ex, "Cannot finish calculating McQuery.Net.Sample");
     throw;
 }
+catch (OperationCanceledException ex)
+{
+    logger.LogError(ex, "Operation was canceled");
+    throw;
+}
+catch (Exception ex)
+{
+    logger.LogError(ex, "Unhandled standard basic exception");
+    throw;
+}
 
 abstract file class CommandBase(IPEndPoint endPoint)
 {
