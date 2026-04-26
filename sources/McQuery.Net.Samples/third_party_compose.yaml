@@ -1,0 +1,23 @@
+﻿name: "mc-query-net-samples"
+
+x-server-config: &server-config
+  image: itzg/minecraft-server:stable-java21
+  environment:
+    TYPE: "PAPER"
+    VERSION: "1.20.6"
+    EULA: "TRUE"
+    ENABLE_QUERY: "TRUE"
+
+services:
+  mc-server-1:
+    <<: *server-config
+    ports:
+      - "25565:25565/udp"
+  mc-server-2:
+    <<: *server-config
+    ports:
+      - "25566:25565/udp"
+  mc-server-3:
+    <<: *server-config
+    ports:
+      - "25567:25565/udp"
