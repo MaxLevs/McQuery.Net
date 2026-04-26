@@ -1,29 +1,34 @@
-# McQueryLib.Net
+# McQuery.Net
 
 Library for .Net which implements Minecraft Query protocol. You can use it for getting statuses of a Minecraft server.
 
 # Example of using
 
 ```cs
-static async Task DoSomething(IEnumerable<IPEndPoint> mcServersEndPoints)
+IMcQueryClientFactory factory = new McQueryClientFactory();
+using var client = factory.Get();
+
+async Task ExecuteQueries(IReadOnlyCollection<IPEndPoint> endpoints, CancellationToken cancellationToken = default)
 {
-	McQueryService service = new(5, 5000, 500, 1000); 
+    var queryTasks = endpoints.SelectMany<IPEndPoint, Task, Task>(
+        endpoint =>
+        [
+            GetBasicStatusAndPrint(endpoint, cancellationToken),
+            GetFullStatusAndPrint(endpoint, cancellationToken)
+        ],
+        (_, task) => task
+    ).ToArray();
 
-	List<Server> servers = mcServersEndPoints.Select(service.RegistrateServer).ToList();
+    await Task.WhenAll(queryTasks);
+}
 
-	List<Task<IResponse>> requests = new();
-	foreach (Server server in servers)
-	{
-		requests.Add(service.GetBasicStatusCommon(server));
-		requests.Add(service.GetFullStatusCommon(server));
-	}
+async Task GetBasicStatusAndPrint(IPEndPoint endpoint, CancellationToken cancellationToken = default)
+{
+    Console.WriteLine(await client.GetBasicStatusAsync(endpoint, cancellationToken));
+}
 
-	Task.WaitAll(requests.ToArray());
-
-	foreach (Task<IResponse> request in requests)
-	{
-		IResponse response = await request;
-		Console.WriteLine(response.ToString() + "\n");
-	}
+async Task GetFullStatusAndPrint(IPEndPoint endpoint, CancellationToken cancellationToken = default)
+{
+    Console.WriteLine(await client.GetFullStatusAsync(endpoint, cancellationToken));
 }
 ```

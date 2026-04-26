@@ -2,6 +2,19 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
+    <PackageId>McQuery.Net</PackageId>
+    <Description>
+      Library for .Net which implements Minecraft Query protocol. You can use it for getting statuses of a Minecraft server.
+    </Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging"/>
+    <PackageReference Include="Microsoft.VisualStudio.Threading"/>
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>
