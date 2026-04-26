@@ -34,7 +34,7 @@ Func<IPEndPoint, CommandBase>[] commandFactories =
 CommandBase[] commands =
 [
     ..
-    from _ in Enumerable.Range(start: 0, count: 2000)
+    from _ in Enumerable.Range(start: 0, count: 5000)
     from fc in commandFactories
     from port in ports
     select fc(new IPEndPoint(IPAddress.Loopback, port)),
@@ -46,7 +46,17 @@ try
 {
     logger.LogInformation("Starting McQuery.Net.Sample with {Count} requests", commands.Length);
     var stopwatch = Stopwatch.StartNew();
-    await Task.WhenAll(commands.Select(x => x.ExecuteAsync(client)).ToArray());
+    List<Task> tasks = [];
+    tasks.AddRange(
+        commands.GroupBy(x => x.EndPoint.Port)
+            .Select(commandGroup => Task.Run(async () =>
+            {
+                foreach (var command in commandGroup)
+                {
+                    await command.ExecuteAsync(client).ConfigureAwait(false);
+                }
+            })));
+    await Task.WhenAll(tasks);
     stopwatch.Stop();
     logger.LogInformation("Finished. It took {Elapsed}", stopwatch.Elapsed);
 }
@@ -68,7 +78,7 @@ catch (Exception ex)
 
 abstract file class CommandBase(IPEndPoint endPoint)
 {
-    protected readonly IPEndPoint EndPoint = endPoint;
+    public readonly IPEndPoint EndPoint = endPoint;
 
     public abstract Task ExecuteAsync(IMcQueryClient client, CancellationToken cancellationToken = default);
 }

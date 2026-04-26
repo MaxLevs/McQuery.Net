@@ -26,7 +26,7 @@ internal class SessionStorage(ISessionIdProvider sessionIdProvider) : ISessionSt
 
         if (_sessionsByEndpoints.TryGetValue(serverEndpoint, out var existingSession) && !existingSession.IsExpired)
         {
-            return existingSession;
+            return existingSession with { SessionId = sessionIdProvider.Get() };
         }
 
         return await AcquireSessionAsync(serverEndpoint, cancellationToken);
